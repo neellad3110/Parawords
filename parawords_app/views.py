@@ -1,11 +1,13 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import CustomUserSerializer,AuthUserSerializer
+from .serializers import CustomUserSerializer,AuthUserSerializer,ParagraphSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken 
-from .models import RegisterUser
+from .models import RegisterUser,Paragraph,Word
+from django.contrib.auth import get_user_model
+import re
 
 # Create your views here.
 
@@ -13,7 +15,6 @@ class register(APIView):
    
     def get(self, request, format=None):
         users_obj = RegisterUser.objects.all()
-        print(users_obj)
         return Response({'status':200,'payload':CustomUserSerializer(users_obj,many=True).data})
     
     def post(self, request, format=None):
@@ -39,11 +40,43 @@ class authuser(APIView):
         refresh = RefreshToken.for_user(user_obj)
         return Response({'status':200,'user_id': user_obj.id,'token':str(refresh.access_token),'message':'token generated successfully'})
     
-class welcome(APIView):
+class paragraph(APIView):
     
     authentication_classes=[JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
+    def post(self, request, format=None):
+        
+        serialized_data=ParagraphSerializer(data=request.data,context = {'request':request})
+        if not serialized_data.is_valid():
+            return Response({'status':403,'error':serialized_data.errors})
+        
+        serialized_data.save()
+        return Response({'status':200,'user_id':request.user.id,'payload':serialized_data.data,'message':'paragraphs added successfully'})
+
+class word(APIView):
+     
+    authentication_classes=[JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, format=None):
-        return Response({'status':200,'message':'authenticated successfully'})
+        
+        word=request.data["word"]
+        try:
+           
+            word_obj=Word.objects.filter(user=request.user.id,word=word).order_by('created_at')
+            
+            if word_obj is None:
+                raise ValueError({"error":"No paragraphs found which contain '"+word+"'"})
+            else:
+
+                para_id=word_obj.values_list('paragraph',flat=True)
+                para_obj=Paragraph.objects.filter(user=request.user.id,id__in=para_id).values('paragraph')
+                para_found=para_obj.values_list('paragraph',flat=True)
+
+        except Exception as e:
+            return Response({'message':'Error occured while fetching paragraphs.'})
+        
+        return Response({'paragraphs':para_found})
+            
     

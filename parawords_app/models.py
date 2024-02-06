@@ -14,8 +14,8 @@ class RegisterUser(AbstractBaseUser):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name', 'dob','email','password']
+    # USERNAME_FIELD = 'email'
+    # REQUIRED_FIELDS = ['name', 'dob','email','password']
 
     def __str__(self):
         return self.email
@@ -25,3 +25,15 @@ class RegisterUser(AbstractBaseUser):
     
     def has_module_perms(self, app_label):
         return True
+
+class Paragraph(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(RegisterUser, on_delete=models.CASCADE)
+    paragraph=models.TextField(null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+class Word(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(RegisterUser, on_delete=models.CASCADE)
+    paragraph = models.ForeignKey(Paragraph,on_delete=models.CASCADE)
+    word=models.CharField(null=False)
+    created_at = models.DateTimeField(auto_now_add=True)    
