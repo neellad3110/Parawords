@@ -1,22 +1,22 @@
 from rest_framework import serializers
 from .models import RegisterUser,Paragraph,Word
 import re
-from django.contrib.auth.hashers import make_password,check_password
-from django.contrib.auth import get_user_model
+from rest_framework.validators import UniqueValidator
+from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.hashers import check_password
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
+
+    email = serializers.CharField(required=True,validators=[UniqueValidator(queryset=RegisterUser.objects.all())])
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+
     class Meta:
         model = RegisterUser
         fields ='__all__'
 
-    def validate(self,data):
-        password_regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$"
-
-        if not re.match(password_regex,data["password"]):
-            raise serializers.ValidationError({'error':"Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character."})
-                 
-        return data
+    def validate(self, attrs):
+        return attrs    
     
     def create(self, validated_data):
 
@@ -79,28 +79,3 @@ class ParagraphSerializer(serializers.ModelSerializer):
         
 
         return validated_data
-
-# class WordSerializer(serializers.Serializer):
-
-#     word=serializers.CharField()
-
-    
-#     def validate(self,data):
-
-#         request_data=self.context["request"]
-#         user_id=request_data.user.id
-#         word=str(data["word"]).strip()
-
-#         try:
-#             word_obj=Word.objects.filter(user=user_id,word=word)
-#             # word_obj=Word.objects.filter(user=user_id,word=word).order_by('created_at')
-#             # para_id=word_obj.values_list('paragraph',flat=True)
-#             # para_obj=Paragraph.objects.filter(user_id=user_id,id__in=para_id)
-            
-#         except Exception as e:
-#             raise ValueError({"error":"No paragraphs found which contain '"+word+"'"})
-        
-#         return data
-    
-    
-        

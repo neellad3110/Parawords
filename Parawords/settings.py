@@ -138,6 +138,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# default auth model for application
+AUTH_USER_MODEL="parawords_app.RegisterUser"
+
 # jwt token configurations
 SIMPLE_JWT = {
 
