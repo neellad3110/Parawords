@@ -6,10 +6,15 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken 
 from .models import RegisterUser,Paragraph,Word
-import re
+from django.shortcuts import redirect
 
 # Create your views here.
 
+def redirect_to_register(request):
+    """
+    Redirects users to the registration page whenever they access the root URL.
+    """
+    return redirect('/register')
 class register(APIView):
     """API endpoint for registering new users"""  
     # def get(self, request, format=None):
