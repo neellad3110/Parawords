@@ -6,16 +6,15 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken 
 from .models import RegisterUser,Paragraph,Word
-from django.contrib.auth import get_user_model
 import re
 
 # Create your views here.
 
 class register(APIView):
-   
-    def get(self, request, format=None):
-        users_obj = RegisterUser.objects.all()
-        return Response({'status':200,'payload':CustomUserSerializer(users_obj,many=True).data})
+    """API endpoint for registering new users"""  
+    # def get(self, request, format=None):
+    #     users_obj = RegisterUser.objects.all()
+    #     return Response({'status':200,'payload':CustomUserSerializer(users_obj,many=True).data})
     
     def post(self, request, format=None):
         serialized_data=CustomUserSerializer(data=request.data)
@@ -26,7 +25,7 @@ class register(APIView):
         return Response({'status':200,'payload':serialized_data.data,'message':'user added successfully'})
 
 class authuser(APIView):
-
+    """API endpoint for authenticating registered users and generating auth jwt token"""
     def post(self, request, format=None):
         serialized_data=AuthUserSerializer(data=request.data)
         if not serialized_data.is_valid():
@@ -41,7 +40,7 @@ class authuser(APIView):
         return Response({'status':200,'user_id': user_obj.id,'token':str(refresh.access_token),'message':'token generated successfully'})
     
 class paragraph(APIView):
-    
+    """API endpoint for adding new content leading to creating paragraph and words class instance"""
     authentication_classes=[JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -55,7 +54,7 @@ class paragraph(APIView):
         return Response({'status':200,'user_id':request.user.id,'payload':serialized_data.data,'message':'paragraphs added successfully'})
 
 class word(APIView):
-     
+    """API endpoint for finding words from added paragraph by registered user""" 
     authentication_classes=[JWTAuthentication]
     permission_classes = [IsAuthenticated]
 

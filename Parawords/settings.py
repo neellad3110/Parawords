@@ -12,9 +12,12 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -25,7 +28,7 @@ SECRET_KEY = 'django-insecure-twahgdz0z2=(w@70o*-=a6&arvz6v8x*z4%l9p43@37rh%6%(d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -84,17 +87,12 @@ REST_FRAMEWORK = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-
-        'NAME': 'ParaWords',
-
-        'USER': 'postgres',
-
-        'PASSWORD': 'postgres@123',
-
-        'HOST': 'localhost',
-
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': os.environ.get('POSTGRES_HOST'),
+        'PORT': os.environ.get('POSTGRES_PORT', 5432),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'NAME': os.environ.get('POSTGRES_DB'),
     }
 }
 
